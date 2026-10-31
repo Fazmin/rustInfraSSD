@@ -3,20 +3,85 @@
 [![CI](https://github.com/Fazmin/rustInfraSSD/actions/workflows/rust.yml/badge.svg)](https://github.com/Fazmin/rustInfraSSD/actions/workflows/rust.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-rustInfraSSD is inspired by [InferSSD](https://github.com/wici-ai/inferssd), which runs
-mixture-of-experts models larger than RAM or VRAM by streaming expert weights from SSD, on top of
-llama.cpp. I'm rewriting its SSD layer in Rust. That layer reads, caches and schedules the expert
-weights. It parses model files downloaded from the internet and coordinates I/O across many
-threads, so it is where memory and thread safety matter most.
+**Run mixture-of-experts models far larger than your RAM by streaming their experts from SSD, with
+the SSD layer written in Rust.**
 
-In Rust, the compiler enforces those guarantees. The aim is to match InferSSD's speed and produce
-exactly the same output. llama.cpp, ggml and the GPU kernels stay in C/C++/CUDA and call the Rust
-code through a C ABI.
+A mixture-of-experts (MoE) model can have hundreds of billions of parameters, but each token uses only
+a few of its experts. DeepSeek-V4.1-Flash, for example, has 763B parameters and activates 8–16B of
+them per token, about 1–2% of its weights. The shared weights can therefore stay in memory, while the
+experts stay on the SSD and are read only when a token needs them. That is how a model of hundreds of
+gigabytes runs on a laptop.
+
+rustInfraSSD is the layer that does this work. It finds where each expert lives on the SSD, reads it
+with direct I/O, keeps frequently used experts cached, and runs them. This code parses model files
+downloaded from the internet and coordinates I/O across many threads. Writing it in Rust means the
+compiler enforces its memory and thread safety.
 
 > [!NOTE]
-> **Early stage.** The expert source store and the file layer are ported and tested. The engine does
-> not use them yet, so rustInfraSSD cannot run a model by itself; use
-> [InferSSD](https://github.com/wici-ai/inferssd) for that. See [Status](#status).
+> **Early stage.** The source index and the file layer are ported and tested. The reader, the cache
+> and expert compute come next. rustInfraSSD cannot run a model on its own yet; see
+> [Running a model today](#running-a-model-today).
+
+## How it works
+
+Say you have a large MoE model and a machine with far less memory than the model's size, but with a
+fast SSD. This is the whole path from model files to generated tokens. The orange boxes are
+rustInfraSSD.
+
+```mermaid
+flowchart TB
+    model[("Large MoE model<br/>GGUF files on your SSD")]
+    index["① Index the experts<br/>map every expert to its bytes"]
+    probe["② Measure the machine<br/>SSD, CPU, memory and GPU speeds"]
+    dense["③ Load the dense weights<br/>into RAM or VRAM"]
+    model --> index --> probe --> dense --> attn
+
+    subgraph layer ["④ For each token, in every MoE layer"]
+        attn["Attention and router<br/>llama.cpp on Metal or CUDA"]
+        subgraph rust ["rustInfraSSD"]
+            hit{"Expert cached<br/>in RAM?<br/>⏳ planned"}
+            lookup["Find its bytes<br/>source index<br/>✅ ported"]
+            read["Read them from the SSD<br/>direct I/O<br/>🚧 in progress"]
+            compute["Run the expert<br/>CPU, or GPU tier on Linux<br/>⏳ planned"]
+            hit -- "no" --> lookup --> read -- "and cache them" --> compute
+            hit -- "yes" --> compute
+        end
+        combine["Combine the expert outputs"]
+        attn -- "picks a few experts" --> hit
+        compute --> combine
+        combine -. "next layer" .-> attn
+    end
+
+    combine --> token(["⑤ Next token"])
+
+    classDef rustbox fill:#b7410e,stroke:#7a2b09,color:#ffffff
+    class hit,lookup,read,compute rustbox
+```
+
+1. **Put the model on a fast SSD.** Download the model's GGUF files to an internal NVMe drive.
+   DeepSeek-V4.1-Flash at Q8_0 is about 473 GiB. The drive's random-read speed decides how quickly
+   uncached experts arrive.
+2. **Index the experts.** The launcher reads the GGUF headers and writes an alias TSV. The TSV maps
+   each expert of each MoE tensor to its byte range in the GGUF files, so no weights are copied.
+   Alternatively, the experts can be rewritten into an expert pack with 4 KiB-aligned entries.
+   rustInfraSSD loads either one into its source index.
+3. **Measure the machine.** Probes measure:
+   - the SSD's random-read speed at several request sizes and queue depths;
+   - the CPU's matrix speed;
+   - memory size and bandwidth;
+   - GPU copy rates.
+
+   The caches are sized from the memory that is free, so there is no memory setting to choose.
+4. **Load the dense weights.** Attention, the router and the other shared weights are a small part of
+   the model. They load into RAM or VRAM and run on the GPU through llama.cpp.
+5. **Generate.** In each MoE layer, the router picks the experts the token needs. rustInfraSSD serves
+   each expert from its RAM cache. On a miss, it looks the expert up in the source index and reads its
+   bytes from the SSD with direct I/O, which bypasses the operating system's page cache. It then runs
+   the expert on the CPU, or on the GPU tier on Linux with CUDA. The expert outputs are combined and
+   the next layer runs.
+
+Everything outside the orange boxes stays in C/C++: llama.cpp and ggml run the dense layers, and the
+GPU kernels stay in CUDA. They call the Rust code through a C ABI.
 
 ## Quick start
 
@@ -31,7 +96,7 @@ cargo run -p ssd-core --example quickstart   # index, look up and read one exper
 ```
 
 The example writes a small expert index to a temporary directory, looks up one expert and reads it
-with direct I/O, which bypasses the page cache:
+with direct I/O:
 
 ```text
 indexed 4 entries from 1 source file
@@ -119,8 +184,31 @@ cc -I cpp/include app.c target/release/libinferssd_ssd.a -lpthread -ldl -lm -o a
 
 [cpp/examples/quickstart.c](cpp/examples/quickstart.c) is a complete program, including the aligned
 read. `./scripts/check-facade.sh` builds it and runs it on a scratch index. For C++,
-[cpp/facade/ggml-ssd/store/index.h](cpp/facade/ggml-ssd/store/index.h) provides upstream's
+[cpp/facade/ggml-ssd/store/index.h](cpp/facade/ggml-ssd/store/index.h) provides the original C++
 `ssd::store::source_index` class on top of the same C ABI.
+
+## Built on InferSSD
+
+This project is inspired by [InferSSD](https://github.com/wici-ai/inferssd), which built the approach
+above on top of llama.cpp and runs it on macOS with Metal and on Linux with CUDA. Its benchmarks show
+DeepSeek-V4.1-Flash generating about 2.9 tokens per second on a MacBook Pro with 48 GB of memory
+([details](https://github.com/wici-ai/inferssd/blob/v0.1.0/README.md#performance-benchmarks)).
+
+I'm rewriting InferSSD's SSD layer in Rust, one component at a time. The aim is to match its speed and
+produce exactly the same output, token for token. llama.cpp, ggml, the GPU kernels and the launcher
+stay as they are. A pinned copy of InferSSD lives in `upstream/` (see [UPSTREAM.md](UPSTREAM.md)), and
+every Rust component is tested against it.
+
+### Running a model today
+
+Until the Rust layer is wired into the engine, run models with InferSSD itself. Its
+[quick start](https://github.com/wici-ai/inferssd/blob/main/docs/quickstart.md) lists the
+requirements.
+
+```sh
+curl -fsSL https://github.com/wici-ai/inferssd/releases/latest/download/install.sh | sh
+inferssd cli -hf mrfakename/DeepSeek-V4.1-Flash-1017-GGUF   # the first run downloads about 470 GiB
+```
 
 ## Versions
 
