@@ -1,0 +1,120 @@
+InferSSD notices
+================
+
+Copyright (c) 2026 WiCi AI and the InferSSD contributors
+
+InferSSD is licensed under the Apache License, Version 2.0. See LICENSE.
+
+InferSSD includes upstream and third-party components that keep their original
+licenses and notices. The MIT notices of llama.cpp, ggml and the projects
+adapted into InferSSD are listed below and in engine/LICENSE. They apply
+wherever that code appears, including code moved or adapted into the InferSSD
+paths listed under "InferSSD source under engine/". The Apache License does not
+replace them.
+
+The notices in engine/AUTHORS, engine/licenses/, engine/vendor/ and individual
+source files also remain applicable. No model weights are distributed with this
+source tree.
+
+1. llama.cpp and ggml
+   https://github.com/ggml-org/llama.cpp
+   The bundled engine is based on llama.cpp revision
+   f42e29fdf199481effd31f281bf095ec6067757b (upstream build b8961,
+   2026-04-28). Muse Spark model support is ported from upstream revision
+   ba3c05f71d. Copyright (c) 2023-2026 The ggml authors. MIT (engine/LICENSE).
+
+2. DeepSeek V4 support
+   https://github.com/nisparks/llama.cpp
+   Ported from Nicholas Sparks' MIT-licensed fork. Copyright (c) 2023-2026
+   The ggml authors. Earlier revisions also included the lightning-indexer
+   kernel by Stanislaw Szymczyk (llama.cpp PR 21149, via cchuter/llama.cpp),
+   which is no longer part of this source tree. The port includes a server fix
+   by tokencube / Zero (JARVIS). The MIT permission notice below applies.
+
+3. DeepSeek V4.1 runtime
+   https://github.com/vcruz305/llama.cpp
+   Source revision 5210c7c5ed61. The DeepSeek-V4.1 graph, the DeepSeek V4 KV
+   cache and the fused hyper-connection CUDA kernels are ported from it; the
+   latter two originate in upstream llama.cpp pull requests 24162 and 25585.
+   Copyright (c) 2023-2026 The ggml authors. The MIT permission notice below
+   applies.
+
+4. Engram decode reference
+   https://github.com/antirez/ds4
+   Source revision 8db1d1d155cb, ds4_engram.c. The Engram decode arithmetic in
+   engine/src/llama-engram.h and a short reference in
+   engine/tests/ssd/test-dsv41-engram.cpp are transcribed from that
+   implementation.
+   Copyright (c) 2026 The ds4.c authors
+   Copyright (c) 2023-2026 The ggml authors
+   Copyright (c) 2023 DeepSeek
+   The MIT permission notice below applies.
+
+5. ik_llama.cpp
+   https://github.com/ikawrakow/ik_llama.cpp
+   The deferred expert mmap residency loader in engine/src/ssd/model-source.cpp
+   is adapted from pull request 1634 (revision 4f4bcfbe6712).
+   Copyright (c) 2024-2025 The ik_llama.cpp authors.
+   The MIT permission notice below applies.
+
+MIT permission notice for entries 1-5
+-------------------------------------
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+InferSSD source under engine/
+-----------------------------
+
+These paths under engine/ hold InferSSD source:
+
+  common/inferssd/            src/inferssd/
+  ggml/src/ggml-cpu/ssd/      src/ssd/
+  ggml/src/ggml-cuda/ssd/     tests/ssd/
+  ggml/src/ggml-ssd/          tools/expert-pack/
+  include/llama-ssd.h         tools/inferssd-probe/
+                              tools/server/inferssd/
+
+Files in these paths are licensed under Apache-2.0 unless they carry a
+different SPDX-License-Identifier. Files there marked MIT contain code adapted
+from llama.cpp, ggml or a project listed above; that code keeps the MIT
+license. InferSSD changes and additions in those files are licensed under
+Apache-2.0.
+
+Elsewhere under engine/, engine/LICENSE covers the llama.cpp and ggml code and
+the code adapted from the projects listed above, unless a file carries a
+different SPDX-License-Identifier. InferSSD changes and additions there are
+licensed under Apache-2.0.
+
+Historical note: reference float math
+-------------------------------------
+
+Earlier InferSSD development revisions included a CUDA float reference
+component translated from glibc and fdlibm routines. Its expf algorithm and
+32-entry exp2f table originate in ARM optimized-routines
+(https://github.com/ARM-software/optimized-routines, math/expf.c and
+math/exp2f_data.c, Copyright (c) 2017-2018 Arm Limited, MIT). The glibc
+copies carried LGPL-2.1-or-later notices and the fdlibm copies carried Sun
+Microsystems notices. That component is not part of this source tree. This
+note acknowledges its origin and does not relicense it.
+
+External runtime dependencies
+-----------------------------
+
+liburing is not vendored. Binary distributions must comply with its selected
+license (the MIT option is available) and the NVIDIA CUDA runtime terms.

@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/Fazmin/rustInfraSSD/security/advisories/new
+    about: Report vulnerabilities privately, not in a public issue. See SECURITY.md.
+  - name: Problems in InferSSD itself
+    url: https://github.com/wici-ai/inferssd/issues
+    about: Bugs in code under upstream/ that also occur in InferSSD belong upstream.

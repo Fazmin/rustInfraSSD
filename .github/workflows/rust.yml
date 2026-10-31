@@ -1,0 +1,32 @@
+name: rust
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: rustup toolchain install stable --profile minimal --component rustfmt,clippy && rustup default stable
+      - name: Format
+        run: cargo fmt --all -- --check
+      - name: Lint
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      # O_DIRECT needs a filesystem that supports it; the runner's /tmp does.
+      - name: Test
+        run: cargo test --workspace --locked
+      - name: Quick start example
+        run: cargo run -p ssd-core --example quickstart --locked
+      - name: C ABI and facades
+        run: ./scripts/check-facade.sh

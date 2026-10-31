@@ -1,0 +1,58 @@
+name: release
+
+# Pushing a tag vX.Y.Z publishes a GitHub release with the CHANGELOG entry and,
+# per platform, the static library, the C headers and the C++ facades.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-15, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag, version and changelog
+        run: ./scripts/check-release.sh "$GITHUB_REF_NAME" > /dev/null
+      - name: Toolchain
+        run: rustup toolchain install stable --profile minimal && rustup default stable
+      - name: Test
+        run: cargo test --workspace --locked
+      - name: C ABI and facades
+        run: ./scripts/check-facade.sh
+      - name: Package
+        run: |
+          name="rustinfrassd-$GITHUB_REF_NAME-$(rustc -vV | sed -n 's/^host: //p')"
+          mkdir -p "dist/$name/lib"
+          cp target/release/libinferssd_ssd.a "dist/$name/lib/"
+          cp -R cpp/include cpp/facade "dist/$name/"
+          cp LICENSE NOTICE README.md CHANGELOG.md "dist/$name/"
+          tar -C dist -czf "dist/$name.tar.gz" "$name"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}
+          path: dist/*.tar.gz
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ./scripts/check-release.sh "$GITHUB_REF_NAME" > notes.md
+          gh release create "$GITHUB_REF_NAME" dist/*.tar.gz --verify-tag \
+            --title "rustInfraSSD $GITHUB_REF_NAME" --notes-file notes.md

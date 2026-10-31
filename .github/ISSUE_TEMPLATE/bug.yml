@@ -1,0 +1,24 @@
+name: Bug report
+description: Report a reproducible failure or a behaviour difference from upstream InferSSD.
+body:
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and observed behavior
+      description: For a difference from upstream, include what the C++ original does with the same input.
+    validations:
+      required: true
+  - type: textarea
+    id: version
+    attributes:
+      label: Version and environment
+      description: Output of `inferssd_ssd_build_info()` (or the release tag or commit), OS, CPU, compiler, and the filesystem holding the model files.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Commands, a minimal pack or alias TSV, and sanitized logs. Remove credentials and personal paths.
+    validations:
+      required: true

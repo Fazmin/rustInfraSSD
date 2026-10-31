@@ -1,0 +1,19 @@
+[package]
+name = "ssd-core"
+description = "Platform-independent core of the InferSSD SSD layer: results, expert source store"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+ssd-platform.workspace = true
+
+[dev-dependencies]
+libc.workspace = true
+tempfile.workspace = true
+
+[lints]
+workspace = true

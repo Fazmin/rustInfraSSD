@@ -1,0 +1,23 @@
+name: Upstream change to port
+description: Track an InferSSD change to the SSD layer that the Rust port must follow.
+title: "upstream: "
+body:
+  - type: input
+    id: change
+    attributes:
+      label: Upstream pull request or commit
+      placeholder: https://github.com/wici-ai/inferssd/pull/123
+    validations:
+      required: true
+  - type: textarea
+    id: components
+    attributes:
+      label: Affected components
+      description: Upstream files changed, and the Rust crates or facades they map to (see UPSTREAM.md).
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Behaviour or test changes, and whether the change affects the C ABI.

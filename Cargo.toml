@@ -1,0 +1,28 @@
+[workspace]
+resolver = "3"
+members = ["crates/ssd-platform", "crates/ssd-core", "crates/ssd-capi"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "Apache-2.0"
+repository = "https://github.com/Fazmin/rustInfraSSD"
+# The crates are consumed from git or through the C ABI, not from crates.io.
+publish = false
+
+[workspace.dependencies]
+libc = "0.2.191"
+tempfile = "3.27"
+ssd-platform = { path = "crates/ssd-platform" }
+ssd-core = { path = "crates/ssd-core" }
+
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+
+[workspace.lints.clippy]
+undocumented_unsafe_blocks = "warn"
+
+[profile.release]
+debug = 1
+panic = "unwind"

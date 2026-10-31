@@ -1,0 +1,17 @@
+rustInfraSSD
+Copyright 2026 Fazmin Nizam
+
+rustInfraSSD is a derivative of InferSSD (https://github.com/wici-ai/inferssd),
+Copyright (c) 2026 WiCi AI and the InferSSD contributors, licensed under the
+Apache License, Version 2.0. See LICENSE.
+
+The upstream source tree is bundled unmodified under upstream/ at the revision
+recorded in UPSTREAM.md. Its NOTICE (upstream/NOTICE), engine/LICENSE,
+engine/AUTHORS, engine/licenses/ and the notices in individual source files
+continue to apply to that code, including the MIT notices of llama.cpp, ggml
+and the other projects listed there.
+
+The Rust crates under crates/ and the C/C++ facades under cpp/ are ports of
+InferSSD's Apache-2.0 SSD layer (engine/ggml/src/ggml-ssd and related paths).
+They are modified versions of that work, licensed under Apache-2.0. Each ported
+file names the upstream file it was derived from.

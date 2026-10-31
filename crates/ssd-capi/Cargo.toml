@@ -1,0 +1,22 @@
+[package]
+name = "ssd-capi"
+description = "C ABI of the Rust SSD layer, consumed by the patched llama.cpp engine"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lib]
+name = "inferssd_ssd"
+crate-type = ["rlib", "staticlib"]
+
+[dependencies]
+ssd-core.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,11 @@
+*
+!*.*
+!snapshots/
+!ssd/
+!ssd/**
+*.o
+ggml-common.h
+**/*.swp
+!peg-parser
+
+!qwen4exp/

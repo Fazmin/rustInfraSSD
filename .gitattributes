@@ -1,0 +1,3 @@
+# upstream/ is a pristine snapshot (UPSTREAM.md): never convert its line
+# endings, and leave it out of GitHub's language statistics.
+upstream/** -text linguist-vendored

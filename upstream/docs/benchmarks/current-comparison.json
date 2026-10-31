@@ -1,0 +1,266 @@
+{
+  "source": "Summary rates shown in the README performance tables; no new measurements.",
+  "units": "token/s",
+  "baseline": "llama.cpp",
+  "speedup_definition": "engine throughput / llama.cpp throughput; ROUND_HALF_UP to two decimal places",
+  "decode_definition": "256 output tokens; decode rate measured over tokens 129–256",
+  "unsupported": "null corresponds to N/S in README",
+  "rows": [
+    {
+      "model": "DeepSeek-V4.1-Flash-1017",
+      "system": "MacBook Pro (M5 Max)",
+      "prompt_tier": "4K",
+      "metric": "prefill",
+      "rates_tps": {
+        "llama.cpp": "5.929",
+        "Colibri": "0.708",
+        "InferSSD": "28.766"
+      },
+      "speedup": {
+        "llama.cpp": "1.00×",
+        "Colibri": "0.12×",
+        "InferSSD": "4.85×"
+      }
+    },
+    {
+      "model": "DeepSeek-V4.1-Flash-1017",
+      "system": "RTX 5060 Ti",
+      "prompt_tier": "4K",
+      "metric": "prefill",
+      "rates_tps": {
+        "llama.cpp": "6.950",
+        "Colibri": "7.020",
+        "InferSSD": "75.100"
+      },
+      "speedup": {
+        "llama.cpp": "1.00×",
+        "Colibri": "1.01×",
+        "InferSSD": "10.81×"
+      }
+    },
+    {
+      "model": "DeepSeek-V4.1-Flash-1017",
+      "system": "RTX 5090",
+      "prompt_tier": "4K",
+      "metric": "prefill",
+      "rates_tps": {
+        "llama.cpp": "8.060",
+        "Colibri": "39.210",
+        "InferSSD": "164.500"
+      },
+      "speedup": {
+        "llama.cpp": "1.00×",
+        "Colibri": "4.86×",
+        "InferSSD": "20.41×"
+      }
+    },
+    {
+      "model": "DeepSeek-V4.1-Flash-1017",
+      "system": "DGX Spark",
+      "prompt_tier": "4K",
+      "metric": "prefill",
+      "rates_tps": {
+        "llama.cpp": "2.730",
+        "Colibri": "0.826",
+        "InferSSD": "127.500"
+      },
+      "speedup": {
+        "llama.cpp": "1.00×",
+        "Colibri": "0.30×",
+        "InferSSD": "46.70×"
+      }
+    },
+    {
+      "model": "DeepSeek-V4.1-Flash-1017",
+      "system": "MacBook Pro (M5 Max)",
+      "prompt_tier": "4K",
+      "metric": "decode",
+      "rates_tps": {
+        "llama.cpp": "0.873",
+        "Colibri": "0.437",
+        "InferSSD": "2.874"
+      },
+      "speedup": {
+        "llama.cpp": "1.00×",
+        "Colibri": "0.50×",
+        "InferSSD": "3.29×"
+      }
+    },
+    {
+      "model": "DeepSeek-V4.1-Flash-1017",
+      "system": "RTX 5060 Ti",
+      "prompt_tier": "4K",
+      "metric": "decode",
+      "rates_tps": {
+        "llama.cpp": "0.242",
+        "Colibri": "0.900",
+        "InferSSD": "2.550"
+      },
+      "speedup": {
+        "llama.cpp": "1.00×",
+        "Colibri": "3.72×",
+        "InferSSD": "10.54×"
+      }
+    },
+    {
+      "model": "DeepSeek-V4.1-Flash-1017",
+      "system": "RTX 5090",
+      "prompt_tier": "4K",
+      "metric": "decode",
+      "rates_tps": {
+        "llama.cpp": "0.867",
+        "Colibri": "1.878",
+        "InferSSD": "7.270"
+      },
+      "speedup": {
+        "llama.cpp": "1.00×",
+        "Colibri": "2.17×",
+        "InferSSD": "8.39×"
+      }
+    },
+    {
+      "model": "DeepSeek-V4.1-Flash-1017",
+      "system": "DGX Spark",
+      "prompt_tier": "4K",
+      "metric": "decode",
+      "rates_tps": {
+        "llama.cpp": "1.608",
+        "Colibri": "0.356",
+        "InferSSD": "7.260"
+      },
+      "speedup": {
+        "llama.cpp": "1.00×",
+        "Colibri": "0.22×",
+        "InferSSD": "4.51×"
+      }
+    },
+    {
+      "model": "Muse-Spark-Open",
+      "system": "MacBook Pro (M5 Max)",
+      "prompt_tier": "4K",
+      "metric": "prefill",
+      "rates_tps": {
+        "llama.cpp": "3.140",
+        "Colibri": null,
+        "InferSSD": "14.503"
+      },
+      "speedup": {
+        "llama.cpp": "1.00×",
+        "Colibri": null,
+        "InferSSD": "4.62×"
+      }
+    },
+    {
+      "model": "Muse-Spark-Open",
+      "system": "RTX 5060 Ti",
+      "prompt_tier": "4K",
+      "metric": "prefill",
+      "rates_tps": {
+        "llama.cpp": "3.410",
+        "Colibri": null,
+        "InferSSD": "52.100"
+      },
+      "speedup": {
+        "llama.cpp": "1.00×",
+        "Colibri": null,
+        "InferSSD": "15.28×"
+      }
+    },
+    {
+      "model": "Muse-Spark-Open",
+      "system": "RTX 5090",
+      "prompt_tier": "4K",
+      "metric": "prefill",
+      "rates_tps": {
+        "llama.cpp": "4.000",
+        "Colibri": null,
+        "InferSSD": "106.600"
+      },
+      "speedup": {
+        "llama.cpp": "1.00×",
+        "Colibri": null,
+        "InferSSD": "26.65×"
+      }
+    },
+    {
+      "model": "Muse-Spark-Open",
+      "system": "DGX Spark",
+      "prompt_tier": "4K",
+      "metric": "prefill",
+      "rates_tps": {
+        "llama.cpp": "1.740",
+        "Colibri": null,
+        "InferSSD": "83.900"
+      },
+      "speedup": {
+        "llama.cpp": "1.00×",
+        "Colibri": null,
+        "InferSSD": "48.22×"
+      }
+    },
+    {
+      "model": "Muse-Spark-Open",
+      "system": "MacBook Pro (M5 Max)",
+      "prompt_tier": "4K",
+      "metric": "decode",
+      "rates_tps": {
+        "llama.cpp": "0.153",
+        "Colibri": null,
+        "InferSSD": "1.097"
+      },
+      "speedup": {
+        "llama.cpp": "1.00×",
+        "Colibri": null,
+        "InferSSD": "7.17×"
+      }
+    },
+    {
+      "model": "Muse-Spark-Open",
+      "system": "RTX 5060 Ti",
+      "prompt_tier": "4K",
+      "metric": "decode",
+      "rates_tps": {
+        "llama.cpp": "0.059",
+        "Colibri": null,
+        "InferSSD": "0.219"
+      },
+      "speedup": {
+        "llama.cpp": "1.00×",
+        "Colibri": null,
+        "InferSSD": "3.71×"
+      }
+    },
+    {
+      "model": "Muse-Spark-Open",
+      "system": "RTX 5090",
+      "prompt_tier": "4K",
+      "metric": "decode",
+      "rates_tps": {
+        "llama.cpp": "0.155",
+        "Colibri": null,
+        "InferSSD": "1.520"
+      },
+      "speedup": {
+        "llama.cpp": "1.00×",
+        "Colibri": null,
+        "InferSSD": "9.81×"
+      }
+    },
+    {
+      "model": "Muse-Spark-Open",
+      "system": "DGX Spark",
+      "prompt_tier": "4K",
+      "metric": "decode",
+      "rates_tps": {
+        "llama.cpp": "0.120",
+        "Colibri": null,
+        "InferSSD": "2.140"
+      },
+      "speedup": {
+        "llama.cpp": "1.00×",
+        "Colibri": null,
+        "InferSSD": "17.83×"
+      }
+    }
+  ]
+}
