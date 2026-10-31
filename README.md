@@ -3,10 +3,15 @@
 [![CI](https://github.com/Fazmin/rustInfraSSD/actions/workflows/rust.yml/badge.svg)](https://github.com/Fazmin/rustInfraSSD/actions/workflows/rust.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-A port of [InferSSD](https://github.com/wici-ai/inferssd)'s SSD layer from C++ to Rust. InferSSD runs
-mixture-of-experts models larger than RAM or VRAM by streaming routed expert weights from SSD, on
-top of llama.cpp. This project replaces InferSSD's own ~24k lines of SSD code with Rust. llama.cpp,
-ggml and the GPU kernels stay C/C++/CUDA, linked through a C ABI.
+rustInfraSSD is inspired by [InferSSD](https://github.com/wici-ai/inferssd), which runs
+mixture-of-experts models larger than RAM or VRAM by streaming expert weights from SSD, on top of
+llama.cpp. I'm rewriting its SSD layer in Rust. That layer reads, caches and schedules the expert
+weights. It parses model files downloaded from the internet and coordinates I/O across many
+threads, so it is where memory and thread safety matter most.
+
+In Rust, the compiler enforces those guarantees. The aim is to match InferSSD's speed and produce
+exactly the same output. llama.cpp, ggml and the GPU kernels stay in C/C++/CUDA and call the Rust
+code through a C ABI.
 
 > [!NOTE]
 > **Early stage.** The expert source store and the file layer are ported and tested. The engine does
