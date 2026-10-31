@@ -25,37 +25,19 @@ compiler enforces its memory and thread safety.
 ## How it works
 
 Say you have a large MoE model and a machine with far less memory than the model's size, but with a
-fast SSD. This is the whole path from model files to generated tokens. The orange boxes are
+fast SSD. This is the whole path from model files to generated tokens. The orange box is
 rustInfraSSD.
 
 ```mermaid
-flowchart TB
-    model[("Large MoE model<br/>GGUF files on your SSD")]
-    index["① Index the experts<br/>map every expert to its bytes"]
-    probe["② Measure the machine<br/>SSD, CPU, memory and GPU speeds"]
-    dense["③ Load the dense weights<br/>into RAM or VRAM"]
-    model --> index --> probe --> dense --> attn
-
-    subgraph layer ["④ For each token, in every MoE layer"]
-        attn["Attention and router<br/>llama.cpp on Metal or CUDA"]
-        subgraph rust ["rustInfraSSD"]
-            hit{"Expert cached<br/>in RAM?<br/>⏳ planned"}
-            lookup["Find its bytes<br/>source index<br/>✅ ported"]
-            read["Read them from the SSD<br/>direct I/O<br/>🚧 in progress"]
-            compute["Run the expert<br/>CPU, or GPU tier on Linux<br/>⏳ planned"]
-            hit -- "no" --> lookup --> read -- "and cache them" --> compute
-            hit -- "yes" --> compute
-        end
-        combine["Combine the expert outputs"]
-        attn -- "picks a few experts" --> hit
-        compute --> combine
-        combine -. "next layer" .-> attn
-    end
-
-    combine --> token(["⑤ Next token"])
+flowchart LR
+    model[("MoE model<br/>on your SSD")] --> setup["Index experts,<br/>load dense weights"]
+    setup --> router["Router picks<br/>a few experts"]
+    router --> rust["rustInfraSSD<br/>find, read, cache, run"]
+    rust --> token(["Next token"])
+    token -. "repeat" .-> router
 
     classDef rustbox fill:#b7410e,stroke:#7a2b09,color:#ffffff
-    class hit,lookup,read,compute rustbox
+    class rust rustbox
 ```
 
 1. **Put the model on a fast SSD.** Download the model's GGUF files to an internal NVMe drive.
@@ -80,7 +62,7 @@ flowchart TB
    the expert on the CPU, or on the GPU tier on Linux with CUDA. The expert outputs are combined and
    the next layer runs.
 
-Everything outside the orange boxes stays in C/C++: llama.cpp and ggml run the dense layers, and the
+Everything outside the orange box stays in C/C++: llama.cpp and ggml run the dense layers, and the
 GPU kernels stay in CUDA. They call the Rust code through a C ABI.
 
 ## Quick start
